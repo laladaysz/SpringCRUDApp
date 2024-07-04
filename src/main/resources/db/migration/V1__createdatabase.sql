@@ -3,5 +3,6 @@ CREATE TABLE user (
     first_name varchar(30),
     last_name varchar(30),
     age int,
-    occupation varchar(255)
+    occupation varchar(255),
+    role varchar(50)
 )
