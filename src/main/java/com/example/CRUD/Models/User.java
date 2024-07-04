@@ -1,6 +1,7 @@
 package com.example.CRUD.Models;
 
 
+import com.example.CRUD.dtos.UserCreateDTO;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -24,4 +25,10 @@ public class User {
     private String occupation;
 
 
+    public User(UserCreateDTO data) {
+        this.firstName = data.firstName();
+        this.lastName = data.lastName();
+        this.age = data.age();
+        this.occupation = data.occupation();
+    }
 }

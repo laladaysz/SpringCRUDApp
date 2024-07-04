@@ -1,9 +1,11 @@
 package com.example.CRUD.Controller;
 
 
+
 import com.example.CRUD.Exceptions.NotFoundException;
 import com.example.CRUD.Models.User;
 import com.example.CRUD.Repo.UserRepo;
+import com.example.CRUD.dtos.UserCreateDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.web.bind.annotation.*;
@@ -29,7 +31,8 @@ public class ApiControllers {
     }
 
     @PostMapping("/save")
-    public String saveUser(@RequestBody User user) {
+    public String saveUser(@RequestBody UserCreateDTO data) {
+        User user = new User(data);
         userRepo.save(user);
         return "Saved new user!";
     }
@@ -49,7 +52,7 @@ public class ApiControllers {
     public String deleteUser(@PathVariable long id) {
         User deleteUser = userRepo.findById(id).orElseThrow(() -> new NotFoundException("Já foi de F"));
         userRepo.delete(deleteUser);
-        return "Delete user sucessfully!";
+        return "Delete user successfully!";
     }
 
 }
