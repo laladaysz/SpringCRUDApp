@@ -6,53 +6,53 @@ import com.example.CRUD.Exceptions.NotFoundException;
 import com.example.CRUD.Models.User;
 import com.example.CRUD.Repo.UserRepo;
 import com.example.CRUD.dtos.UserCreateDTO;
+import com.example.CRUD.dtos.UserDTO;
+import com.example.CRUD.services.UserService;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.crossstore.ChangeSetPersister;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.util.UriComponentsBuilder;
 
 
+import java.net.URI;
 import java.util.List;
 
-@RestController
+@RestController("/users")
 public class ApiControllers {
 
-    @Autowired //deixa você usar os métodos do repository
-    private UserRepo userRepo;
+    @Autowired
+    private UserService service;
 
     @GetMapping
     public String getPage(){
         return "Welcome";
     }
 
-    @GetMapping("/users")
-    public List<User> getUsers() {
-        return userRepo.findAll();
+    @GetMapping("/get-all") //atualizado
+    public ResponseEntity<List<UserDTO>> getUsers() {
+        return new ResponseEntity<>(service.getAll(), HttpStatus.OK);
+    }
+
+    @PostMapping("/save") //atualizado
+    @Transactional
+    public ResponseEntity<UserDTO> saveUser(@RequestBody UserCreateDTO data, UriComponentsBuilder uriBuilder) {
+        UserDTO user = service.saveUser(data);
+        URI uri = uriBuilder.path(("/users/{id}")).buildAndExpand(user.id()).toUri();
+        return ResponseEntity.created(uri).body(user);
 
     }
 
-    @PostMapping("/save")
-    public String saveUser(@RequestBody UserCreateDTO data) {
-        User user = new User(data);
-        userRepo.save(user);
-        return "Saved new user!";
+    @PutMapping("update/{id}") //atualizado
+    public ResponseEntity<UserDTO> updateUser(@PathVariable Long id, @RequestBody UserCreateDTO user) {
+        return new ResponseEntity<>(service.updateUser(id, user), HttpStatus.OK);
     }
 
-    @PutMapping("update/{id}")
-    public String updateUser(long id, User user) {
-        User updatedUser = userRepo.findById(id).orElseThrow(() -> new NotFoundException("Não achei"));
-        updatedUser.setFirstName(user.getFirstName());
-        updatedUser.setLastName(user.getLastName());
-        updatedUser.setOccupation(user.getOccupation());
-        updatedUser.setAge(user.getAge());
-        userRepo.save(updatedUser);
-        return "User updated!";
-    }
-
-    @DeleteMapping("/delete/{id}")
-    public String deleteUser(@PathVariable long id) {
-        User deleteUser = userRepo.findById(id).orElseThrow(() -> new NotFoundException("Já foi de F"));
-        userRepo.delete(deleteUser);
-        return "Delete user successfully!";
+    @DeleteMapping("/delete/{id}") //atualizado
+    public ResponseEntity<String> deleteUser(@PathVariable Long id) {
+        return new ResponseEntity<>(service.deleteUser(id), HttpStatus.OK);
     }
 
 }
