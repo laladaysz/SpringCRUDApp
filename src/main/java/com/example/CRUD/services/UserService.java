@@ -6,9 +6,14 @@ import com.example.CRUD.Repo.UserRepo;
 import com.example.CRUD.dtos.UserCreateDTO;
 import com.example.CRUD.dtos.UserDTO;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 @Service
 public class UserService {
@@ -18,10 +23,8 @@ public class UserService {
         this.userRepo = userRepo;
     }
 
-    public UserDTO saveUser(UserCreateDTO data) {
-        User user = new User(data);
-        userRepo.save(user);
-        return new UserDTO(user);
+    public void saveUser(User user) {
+       this.userRepo.save(user);
     }
 
     public List<UserDTO> getAll() {
@@ -44,4 +47,14 @@ public class UserService {
 
         return "Delete user successfully! \n" + new UserDTO(deleteUser);
     }
+
+    public Object getByUsername(String username) {
+        Optional<User> user = userRepo.findByUsername(username);
+        if(user.isPresent()){
+            return user.get();
+        }
+        throw new UsernameNotFoundException("Not found");
+    }
+
+
 }
